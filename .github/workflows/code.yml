@@ -23,6 +23,27 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Check Azure Secrets
+        shell: bash
+        run: |
+          if [ -z "${{ secrets.AZURE_CLIENT_ID }}" ]; then
+            echo "CLIENT ID = EMPTY"
+          else
+            echo "CLIENT ID = EXISTS"
+          fi
+
+          if [ -z "${{ secrets.AZURE_TENANT_ID }}" ]; then
+            echo "TENANT ID = EMPTY"
+          else
+            echo "TENANT ID = EXISTS"
+          fi
+
+          if [ -z "${{ secrets.AZURE_SUBSCRIPTION_ID }}" ]; then
+            echo "SUBSCRIPTION ID = EMPTY"
+          else
+            echo "SUBSCRIPTION ID = EXISTS"
+          fi
+
       - name: Azure Login
         uses: azure/login@v2
         with:
