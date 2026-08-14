@@ -19,9 +19,37 @@ jobs:
 
     steps:
 
+      # 1. Checkout GitHub repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # 2. Check whether GitHub can read Azure secrets
+      - name: Check Azure Secrets
+        shell: bash
+        env:
+          CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          if [ -n "$CLIENT_ID" ]; then
+            echo "CLIENT ID = EXISTS"
+          else
+            echo "CLIENT ID = EMPTY"
+          fi
+
+          if [ -n "$TENANT_ID" ]; then
+            echo "TENANT ID = EXISTS"
+          else
+            echo "TENANT ID = EMPTY"
+          fi
+
+          if [ -n "$SUBSCRIPTION_ID" ]; then
+            echo "SUBSCRIPTION ID = EXISTS"
+          else
+            echo "SUBSCRIPTION ID = EMPTY"
+          fi
+
+      # 3. Login to Azure using OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -30,17 +58,22 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # 4. Verify Azure login
       - name: Verify Azure Login
         run: az account show
 
+      # 5. Install Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      # 6. Initialize Terraform
       - name: Terraform Init
         run: terraform init
 
+      # 7. Validate Terraform code
       - name: Terraform Validate
         run: terraform validate
 
+      # 8. Create Terraform plan
       - name: Terraform Plan
         run: terraform plan
