@@ -1,15 +1,13 @@
-name: Terraform Dev
+name: Pipeline-CI
 
 on:
   push:
     branches:
       - main
 
-  workflow_dispatch:
-
 permissions:
-  contents: read
   id-token: write
+  contents: read
 
 jobs:
   terraform:
@@ -20,16 +18,20 @@ jobs:
         working-directory: New folder
 
     steps:
+
       - name: Checkout Code
         uses: actions/checkout@v4
-        
-      - name: Azure Login
+
+        - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Verify Azure Login
+      - name: Verify Azure Login
+        run: |
+          az account show
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -38,7 +40,6 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
-      - name: Terraform plan
+
+      - name: Terraform Plan
         run: terraform plan
-      - name: Terraform apply
-        run: terraform apply -auto-approve
