@@ -19,11 +19,11 @@ jobs:
 
     steps:
 
-      # 1. Checkout GitHub repository
+      # 1. Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Check whether GitHub can read Azure secrets
+      # 2. Check Azure secrets
       - name: Check Azure Secrets
         shell: bash
         env:
@@ -49,7 +49,7 @@ jobs:
             echo "SUBSCRIPTION ID = EMPTY"
           fi
 
-      # 3. Login to Azure using OIDC
+      # 3. Azure login using OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -66,14 +66,18 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 6. Initialize Terraform
+      # 6. Terraform Init
       - name: Terraform Init
         run: terraform init
 
-      # 7. Validate Terraform code
+      # 7. Terraform Format Check
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      # 8. Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
-      # 8. Create Terraform plan
+      # 9. Terraform Plan
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -var="location=Canada Central"
